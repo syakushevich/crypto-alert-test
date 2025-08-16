@@ -1,0 +1,10 @@
+# config/sidekiq_schedule.yml
+alert_checker_job:
+  cron: "*/10 * * * * *" # Every 10 seconds
+  class: "AlertCheckerJob"
+  queue: default
+
+price_fetcher_job:
+  cron: "*/10 * * * * *" # Every 10 seconds
+  class: "PriceFetcherJob"
+  queue: default

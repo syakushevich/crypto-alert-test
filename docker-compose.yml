@@ -1,0 +1,43 @@
+# docker-compose.yml
+services:
+  # No dedicated DB container for SQLite, as it's file-based.
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  app:
+    build: .
+    environment:
+      RAILS_ENV: development
+      REDIS_URL: redis://redis:6379/0
+      RUN_MIGRATIONS: "true"
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+    volumes:
+      - .:/rails
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+
+  sidekiq: # This service now handles both job execution AND scheduling
+    build: .
+    # Sidekiq command, potentially with more specific options
+    command: bundle exec sidekiq -q default -c 5
+    volumes:
+      - .:/rails
+    depends_on:
+      - redis
+      - app # Sidekiq depends on app to ensure migrations are run first
+    environment:
+      RAILS_ENV: development
+      REDIS_URL: redis://redis:6379/0
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+
+volumes:
+  redis_data:
