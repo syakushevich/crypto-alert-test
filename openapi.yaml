@@ -1,0 +1,377 @@
+# openapi.yaml
+openapi: 3.0.3
+info:
+  title: Crypto Alert API
+  description: |-
+    This API allows users to create and manage price alerts for cryptocurrencies.
+    When a price threshold is crossed, a notification is sent through configured channels.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Development server
+
+tags:
+  - name: Alerts
+    description: Operations about alerts
+  - name: Notification Channels
+    description: Manage notification channels for alerts
+
+paths:
+  /alerts:
+    get:
+      tags:
+        - Alerts
+      summary: List all alerts
+      description: Retrieves a list of all configured alerts.
+      responses:
+        '200':
+          description: A successful response with a list of alerts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alert'
+    post:
+      tags:
+        - Alerts
+      summary: Create a new alert
+      description: Creates a new price alert.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertInput'
+      responses:
+        '201':
+          description: Alert created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '422':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /alerts/{id}:
+    get:
+      tags:
+        - Alerts
+      summary: Get a specific alert
+      description: Retrieves a single alert by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the alert to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '404':
+          description: Alert not found.
+    put:
+      tags:
+        - Alerts
+      summary: Update an alert
+      description: Updates an existing alert's attributes.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the alert to update.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertInput'
+      responses:
+        '200':
+          description: Alert updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '404':
+          description: Alert not found.
+        '422':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Alerts
+      summary: Delete an alert
+      description: Deletes a specific alert.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the alert to delete.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Alert deleted successfully.
+        '404':
+          description: Alert not found.
+
+  /notification_channels:
+    get:
+      tags:
+        - Notification Channels
+      summary: List all notification channels
+      description: Retrieves a list of all configured notification channels.
+      responses:
+        '200':
+          description: A successful response with a list of channels.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationChannel'
+    post:
+      tags:
+        - Notification Channels
+      summary: Create a new notification channel
+      description: Creates a new notification channel (e.g., Telegram, Log).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationChannelInput'
+      responses:
+        '201':
+          description: Channel created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationChannel'
+        '422':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /notification_channels/{id}:
+    get:
+      tags:
+        - Notification Channels
+      summary: Get a specific notification channel
+      description: Retrieves a single channel by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the channel to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationChannel'
+        '404':
+          description: Channel not found.
+    put:
+      tags:
+        - Notification Channels
+      summary: Update a notification channel
+      description: Updates an existing channel's attributes.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the channel to update.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationChannelInput'
+      responses:
+        '200':
+          description: Channel updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationChannel'
+        '404':
+          description: Channel not found.
+        '422':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Notification Channels
+      summary: Delete a notification channel
+      description: Deletes a specific channel.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the channel to delete.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Channel deleted successfully.
+        '404':
+          description: Channel not found.
+
+components:
+  schemas:
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for the alert.
+          example: 1
+          readOnly: true
+        from_currency:
+          type: string
+          description: The base currency.
+          example: 'BTC'
+        to_currency:
+          type: string
+          description: The quote currency.
+          example: 'USDT'
+        threshold_price:
+          type: number
+          format: float
+          description: The price at which the alert triggers.
+          example: 65000.50
+        direction:
+          type: string
+          description: The direction of price movement to trigger the alert.
+          enum: [up, down]
+          example: 'up'
+        status:
+          type: string
+          description: The current status of the alert.
+          enum: [active, triggered, paused]
+          example: 'active'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+
+    AlertInput:
+      type: object
+      required:
+        - from_currency
+        - to_currency
+        - threshold_price
+        - direction
+      properties:
+        from_currency:
+          type: string
+          enum: [BTC, ETH, USDT]
+          example: 'BTC'
+        to_currency:
+          type: string
+          enum: [BTC, ETH, USDT]
+          example: 'USDT'
+        threshold_price:
+          type: number
+          format: float
+          example: 65000.50
+        direction:
+          type: string
+          enum: [up, down]
+          example: 'up'
+        status:
+          type: string
+          enum: [active, paused]
+          default: 'active'
+          example: 'active'
+
+    NotificationChannel:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for the channel.
+          example: 1
+          readOnly: true
+        type:
+          type: string
+          description: The type of the channel (STI).
+          example: 'TelegramChannel'
+        config:
+          type: object
+          description: A JSON object with configuration specific to the channel type.
+          additionalProperties: true
+          example:
+            bot_token: 'your-telegram-bot-token'
+            chat_id: 'your-chat-id'
+        is_enabled:
+          type: boolean
+          default: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+
+    NotificationChannelInput:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          description: The type of the channel.
+          enum: [TelegramChannel, LogChannel]
+          example: 'TelegramChannel'
+        config:
+          type: object
+          description: Configuration for the channel.
+          additionalProperties: true
+          example:
+            bot_token: 'your-telegram-bot-token'
+            chat_id: 'your-chat-id'
+        is_enabled:
+          type: boolean
+          default: true
+
+    Error:
+      type: object
+      properties:
+        errors:
+          type: object
+          description: A hash of validation errors.
+          example:
+            threshold_price: ["must be greater than 0"]

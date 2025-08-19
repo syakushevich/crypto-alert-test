@@ -35,6 +35,8 @@ gem "bootsnap", require: false
 group :development, :test do
   gem 'rspec-rails', '~> 6.0'
   gem "debug", platforms: %i[ mri mswin mswin64 mingw x64_mingw ]
+  gem 'factory_bot_rails'
+  gem 'shoulda-matchers'
 end
 
 group :development do
